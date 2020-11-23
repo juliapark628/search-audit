@@ -16,7 +16,7 @@ library(stringr)
 
 # get the ultimate directory
 dir_files <- "/Users/juliapark/GitHub/Lab_Legal_Design/search_audit/data/FL_HI_audit_Nov_2020"
-all_queries_jan_2020_filename <- "/Users/juliapark/GitHub/Lab_Legal_Design/search_audit/data/FL_HI_audit_Jan_2020/all_queries.csv"
+all_queries_jan_2020_filename <- "/Users/juliapark/GitHub/Lab_Legal_Design/search_audit/processed_data/FL_HI_audit_Jan_2020/all_queries_complete.csv"
 
 # remove queries that are irrelevant to the scenario
 remove_queries <- 
@@ -63,6 +63,11 @@ all_queries_jan_2020 <-
   filter(!str_detect(qry, "bay area"))
 ```
 
+```{r}
+
+```
+
+
 ```{r read current data, echo=FALSE, message=FALSE}
 # get directory of all files
 files <- fs::dir_ls(dir_files)
@@ -104,17 +109,31 @@ all_tables <- all_tables %>%
 ```{r save data in files, eval=FALSE, echo=FALSE}
 # Write to separate tables to include thhe most common URLs and links
 
-# all_tables %>% 
-#   filter(!is.na(full_url)) %>% 
-#   count(full_url, sort=TRUE) %>% 
+# all_queries_jan_2020 %>%
+#   filter(!is.na(full_url)) %>%
+#   count(full_url, sort=TRUE) %>%
+#   write_csv("most_common_url_filtered.csv")
+# 
+# all_queries_jan_2020 %>%
+#   filter(!is.na(url)) %>%
+#   count(url, sort = TRUE) %>%
+#   write_csv("most_common_links_filtered.csv")
+# 
+# all_queries_jan_2020 %>%
+#   write_csv("all_queries_filtered.csv")
+# 
+# 
+# all_tables %>%
+#   filter(!is.na(full_url)) %>%
+#   count(full_url, sort=TRUE) %>%
 #   write_csv("most_common_url_complete.csv")
 # 
-# all_tables %>% 
-#   filter(!is.na(url)) %>% 
-#   count(url, sort = TRUE) %>% 
+# all_tables %>%
+#   filter(!is.na(url)) %>%
+#   count(url, sort = TRUE) %>%
 #   write_csv("most_common_links_complete.csv")
 # 
-# all_tables %>% 
+# all_tables %>%
 #   write_csv("all_queries_complete.csv")
 ```
 
