@@ -1,9 +1,10 @@
 ---
 title: 'Search Audit Report: Northern Florida and Hawaii Queries'
-date: "12/30/2020"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
+date: "12/30/2020"
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +21,7 @@ library(stringr)
 # get the ultimate directory
 # has format "[states]_audit_[month]_[year]
 # must exist as a folder in processed_data/
-which_audit <- "FL_HI_audit_Nov_2020"
+which_audit <- "FL_HI_audit_Jan_2020"
 
 all_tables <- 
   str_glue("processed_data/", which_audit, "/all_queries_complete.csv") %>%
@@ -35,7 +36,6 @@ all_tables <-
     )
   )
 ```
-
 
 ```{r analysis function, echo=FALSE, message=FALSE}
 # analyze all queries using this function
@@ -87,31 +87,23 @@ analysis <- function(loc, tp) {
 ``` 
 
 
-## Breakdown of queries
-
-Number of distinct queries:
-
-```{r, echo=FALSE}
+```{r, echo=FALSE, results="hide"}
 # check distinct queries 
 all_tables %>% 
   distinct(qry, legal_type, place) %>% 
   count(legal_type, place)
-```
 
-## Comparison between different categories
-
-```{r}
 all_tables %>% 
   filter(type == "ad")
 ```
 
+## Comparison between different categories
 
-```{r, echo=FALSE}
+```{r domain suffix count}
 # Domain suffix count by legal type
-
 all_tables %>% 
   filter(!is.na(urlsuffix)) %>% 
-  mutate(urlsuffix = fct_lump(urlsuffix, prop = 0.05)) %>% 
+  mutate(urlsuffix = fct_lump(urlsuffix, prop = 0.03)) %>% 
   count(urlsuffix, legal_type, sort = TRUE) %>%
   mutate(
     legal_type = str_replace(legal_type, "_", " ") %>% str_to_title(),
@@ -127,11 +119,13 @@ all_tables %>%
     x = "Domain suffix",
     fill = "Legal type"
   )
+```
 
+```{r domain suffix percent}
 # Domain suffix percent breakdown
 all_tables %>% 
   filter(!is.na(urlsuffix)) %>% 
-  mutate(urlsuffix = fct_lump(urlsuffix, prop = 0.05)) %>% 
+  mutate(urlsuffix = fct_lump(urlsuffix, prop = 0.03)) %>% 
   count(state, legal_type, urlsuffix) %>%
   group_by(state, legal_type) %>% 
   mutate(perc = n / sum(n)) %>% 
@@ -155,7 +149,9 @@ all_tables %>%
     x = "Domain suffix",
     fill = "Legal type"
   )
+```
 
+```{r ad percentage}
 # Percent of ads on a given search page
 all_tables %>% 
   filter(type %in% c("ad", "general")) %>% 
@@ -182,6 +178,32 @@ all_tables %>%
   ) 
 
 
+all_tables %>% 
+  filter(type %in% c("ad", "general")) %>% 
+  count(state, type, legal_type) %>% 
+  group_by(state, legal_type) %>% 
+  mutate(prop = n / sum(n)) %>% 
+  filter(type == "ad") %>% 
+  ungroup() %>% 
+  mutate(
+    legal_type = str_replace(legal_type, "_", " ") %>% str_to_title(),
+    legal_type = fct_reorder(legal_type, prop) %>% fct_rev()
+  ) %>% 
+  ggplot(aes(legal_type, prop)) +
+  geom_col() +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  facet_grid(cols = vars(state)) +
+  labs(
+    title = "Percent of ads on a given search page", 
+    subtitle = "Domestic violence has the largest proportion of ads, eviction queries have the least",
+    x = "Legal query type",
+    y = "Percent"
+  ) 
+```
+
+
+```{r, echo=FALSE}
 # extract non-US websites, find the % of websites outside of US
 all_tables %>% 
   mutate(non_us = str_extract(urlsuffix, "[^\\.]+$") %in% c("uk", "sg", "nz", "jp", "ca", "au")) %>% 
