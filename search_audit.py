@@ -9,7 +9,20 @@ import time
 import tldextract
 import WebSearcher as ws
 
+# used Idaho/NY zipcodes
+locs = {
+	'Bronx': '10456,New York,United States',
+	'Queens': '11368,New York,United States',
+	'Poughkeepsie': '12601,New York,United States',
+	'Brentwood': '11717,New York,United States',
+	'Boise': 'Boise,Idaho,United States',
+	'Sandpoint': '83864,Idaho,United States',
+	'Challis': '83226,Idaho,United States'
+		}
 
+
+'''
+# FL/HI zipcodes
 locs = {
 		'Pensacola': 'Pensacola,Florida,United States',
         'Tallahassee': 'Tallahassee,Florida,United States',
@@ -17,39 +30,33 @@ locs = {
         'Honolulu' : '96813,Hawaii,United States', # honolulu
         'Oahu' : '96792,Hawaii,United States', # rural Oahu
 		}
+'''
 
 '''
+# unused Idaho/NY zipcodes
 locs = {
-	'Bronx': '10456,New York,United States',
-	'Poughkeepsie': '12601,New York,United States',
+	'Saint Maries': '83861,Idaho,United States', - 61
+	'Deary': '83823,Idaho,United States', - 138
+	'Council': '83612,Idaho,United States', - 114
+	'Emmett': '83617,Idaho,United States', - 40
+	'Stanley': '83278,Idaho,United States', - 229
+	'Saint Anthony': '83445,Idaho,United States', - 57
+	'Rupert': '83350,Idaho,United States', - 42
+	'Preston': '83263,Idaho,United States', - 50
+	
 	'Elmira': '14901,New York,United States',
 	'Catskill': '12414,New York,United States',
-	'Mount Vernon': '10550,New York,United States'
-		}
-
-locs = {
-	'Sandpoint': '83864,Idaho,United States',
-	'Saint Maries': '83861,Idaho,United States',
-	'Deary': '83823,Idaho,United States',
-	'Council': '83612,Idaho,United States',
-	'Emmett': '83617,Idaho,United States',
-	'Challis': '83226,Idaho,United States',
-	'Stanley': '83278,Idaho,United States',
-	'Saint Anthony': '83445,Idaho,United States',
-	'Rupert': '83350,Idaho,United States',
-	'Preston': '83263,Idaho,United States',
+	'Mount Vernon': '10550,New York,United States',
 	'Buffalo': '14215,New York,United States',
 	'Albany': '12203,New York,United States',
 	'Rochester': '14621,New York,United States',
-	'Brentwood': '11717,New York,United States',
-	'Queens': '11368,New York,United States'
 	}
 
 
 '''
 
 # csv_files = ['eviction.csv', 'domestic_violence.csv', 'flood_contractor.csv', 'debt_collection.csv']
-csv_files = ['eviction.csv', 'domestic_violence.csv']
+csv_files = ['flood_contractor.csv', 'debt_collection.csv']
 
 
 for csv_file in csv_files:

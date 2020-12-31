@@ -1,83 +1,43 @@
 ---
-title: 'Search Audit Report: Northern Florida Eviction Queries'
-date: "10/28/2020"
+title: 'Search Audit Report: Northern Florida and Hawaii Queries'
+date: "12/30/2020"
 output:
   html_document:
     df_print: paged
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
+knitr::opts_knit$set(root.dir = "~/Github/Lab_Legal_Design/search_audit")
+```
+
+```{r include=FALSE}
 library(tidyverse)
 library(tidytext)
 library(stringr)
 
 # get the ultimate directory
-dir_files <- "/Users/juliapark/GitHub/Lab_Legal_Design/search_audit/data"
+# has format "[states]_audit_[month]_[year]
+# must exist as a folder in processed_data/
+which_audit <- "FL_HI_audit_Nov_2020"
 
-# remove queries that are irrelevant to the scenario
-remove_queries <- 
-  c(
-    "couple's counseling bay area", 
-    "emergency phone number", 
-    "peacekeeper solutions", 
-    "Places I can stay", 
-    "how to make good relationship with partner", 
-    "relationship advice and coaching", 
-    "local police department", 
-    "defusing a situation", 
-    "ptsd", 
-    "How to run away", 
-    "Spouse/husband said he would hurt me", 
-    "escaping relationship", 
-    "911", 
-    "police number", 
-    "paranoia", 
-    "Places that are safe", 
-    "Best methods for good marriage life", 
-    "where to go for advice with a troublesome relationship", 
-    "I need help", 
-    "support group locations", 
-    "insecurity and anger", 
-    "How to contact the police", 
-    "Problems and solutions with wife",
-    "bad roofing company",
-    "free legal aid",
-    "husband",
-    "lawsuit help"
+all_tables <- 
+  str_glue("processed_data/", which_audit, "/all_queries_complete.csv") %>%
+  read_csv(
+    col_types = cols(
+        .default = col_character(),
+        sub_rank = col_double(),
+        cmpt_rank = col_double(),
+        serp_rank = col_double(),
+        timestamp = col_character(),
+        text = col_character()
+    )
   )
 ```
 
 
-```{r, echo=FALSE, message=FALSE}
-# get directory of all files
-files <- fs::dir_ls(dir_files)
-
-# read in all data into one large table
-all_tables <- 
-  files %>%
-  map_dfr(read_csv, .id = "legal_type") %>% 
-  mutate(
-    # get legal_type from file name
-    legal_type = str_extract(legal_type, pattern = "(?<=result_).*") %>% str_remove("_all"), # my files don't have .csv, but if they do add (?=\\.csv) after asterisks
-    place = str_extract(location, pattern = "[^,]+") %>% str_to_title(),
-    place = case_when( # rename zip code into cities
-      place %in% "96813" ~ "Honolulu",
-      place %in% "96792" ~ "Rural Oahu",
-      TRUE ~ place
-    ),
-    state = case_when( # get State information
-      place %in% c("Honolulu", "Maui", "Rural Oahu", "Rural Hilo") ~ "Hawaii", 
-      place %in% c("Jacksonville", "Pensacola", "Tallahassee") ~ "Florida",
-      TRUE ~ NA_character_
-    ),
-    full_url = str_c(urldomain, ".", urlsuffix)
-  ) %>% 
-  distinct() %>% 
-  filter(!(qry %in% remove_queries)) 
-
-
+```{r analysis function, echo=FALSE, message=FALSE}
 # analyze all queries using this function
 # gets the top 3 URL domains
 # first page URL domains
@@ -124,42 +84,10 @@ analysis <- function(loc, tp) {
     filter(type == "ad") %>% 
     count(urldomain, sort = TRUE) 
 }
-
-
-# all_loc_type <- 
-#   files %>% 
-#   str_split_fixed("_", 3) %>% 
-#   as_tibble(.name_repair = "unique") %>% 
-#   rename(loc = `...1`, result = `...2`, tp = `...3`) %>% 
-#   mutate(
-#     loc = str_extract(loc, "(?<=../data/).*"),
-#     loc = case_when(
-#       loc %in% "96813" ~ "Honolulu",
-#       loc %in% "96793" ~ "Maui",
-#       loc %in% "96792" ~ "Rural Oahu",
-#       loc %in% "96778" ~ "Rual Hilo",
-#       TRUE ~ loc
-#     ),
-#     tp = str_extract(tp, ".*(?=\\.csv)")
-#   ) %>% 
-#   select(-result) 
-#   
-# Code to run all analysis; unfortunately formatting is less clear between cities
-# all_loc_type %>% 
-#   pmap(analysis)
-
 ``` 
 
 
 ## Breakdown of queries
-
-Distinct types: 
-
-```{r}
-"/Users/juliapark/GitHub/Lab_Legal_Design/search_audit/data/Pensacola_result_eviction" %>% 
-  read_csv() %>% 
-  count(type)
-```
 
 Number of distinct queries:
 
@@ -446,24 +374,5 @@ analysis("Tallahassee", "flood_contractor")
 
 ```{r, echo=FALSE}
 analysis("Tallahassee", "eviction")
-```
-
-
-
-```{r, eval=FALSE, echo=FALSE}
-# Write to separate tables to include thhe most common URLs and links
-
-all_tables %>% 
-  filter(!is.na(full_url)) %>% 
-  count(full_url, sort=TRUE) %>% 
-  write_csv("most_common_url.csv")
-
-all_tables %>% 
-  filter(!is.na(url)) %>% 
-  count(url, sort = TRUE) %>% 
-  write_csv("most_common_links.csv")
-
-all_tables %>% 
-  write_csv("all_queries.csv")
 ```
 

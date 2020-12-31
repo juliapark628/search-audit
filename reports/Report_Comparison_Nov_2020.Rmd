@@ -1,140 +1,55 @@
 ---
-title: 'Search Audit Report: Florida/Hawaii Search Queries: Nov. 2020'
+title: 'Florida/Hawaii Search Queries Comparison: Jan vs Nov. 2020'
 output:
   pdf_document: default
   html_document:
     df_print: paged
-date: "11/15/2020"
+date: "12/30/2020"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
+knitr::opts_knit$set(root.dir = "~/Github/Lab_Legal_Design/search_audit")
+```
+
+
+```{r include=FALSE}
 library(tidyverse)
 library(tidytext)
 library(stringr)
 
 # get the ultimate directory
-dir_files <- "/Users/juliapark/GitHub/Lab_Legal_Design/search_audit/data/FL_HI_audit_Nov_2020"
-all_queries_jan_2020_filename <- "/Users/juliapark/GitHub/Lab_Legal_Design/search_audit/processed_data/FL_HI_audit_Jan_2020/all_queries_complete.csv"
+first_audit_date <- "FL_HI_audit_Jan_2020"
+second_audit_date <- "FL_HI_audit_Nov_2020"
+first_date_label <- "January"
+second_date_label <- "November"
 
-# remove queries that are irrelevant to the scenario
-remove_queries <- 
-  c(
-    "couple's counseling bay area", 
-    "emergency phone number", 
-    "peacekeeper solutions", 
-    "Places I can stay", 
-    "how to make good relationship with partner", 
-    "relationship advice and coaching", 
-    "local police department", 
-    "defusing a situation", 
-    "ptsd", 
-    "How to run away", 
-    "Spouse/husband said he would hurt me", 
-    "escaping relationship", 
-    "911", 
-    "police number", 
-    "paranoia", 
-    "Places that are safe", 
-    "Best methods for good marriage life", 
-    "where to go for advice with a troublesome relationship", 
-    "I need help", 
-    "support group locations", 
-    "insecurity and anger", 
-    "How to contact the police", 
-    "Problems and solutions with wife",
-    "bad roofing company",
-    "free legal aid",
-    "husband",
-    "lawsuit help"
+first_audit_table <- 
+  str_glue("processed_data/", first_audit_date, "/all_queries_filtered.csv") %>%
+  read_csv(
+    col_types = cols(
+        .default = col_character(),
+        sub_rank = col_double(),
+        cmpt_rank = col_double(),
+        serp_rank = col_double(),
+        timestamp = col_character(),
+        text = col_character()
+    )
   )
-```
 
-```{r read previousdata, echo=FALSE, message=FALSE}
-all_queries_jan_2020 <- 
-  all_queries_jan_2020_filename %>% 
-  read_csv() %>% 
-  filter(!str_detect(qry, "california")) %>% 
-  filter(!str_detect(qry, "califronia")) %>% 
-  filter(!str_detect(qry, "ca")) %>% 
-  filter(!str_detect(qry, "san francisco")) %>% 
-  filter(!str_detect(qry, "sf")) %>% 
-  filter(!str_detect(qry, "bay area"))
-```
-
-```{r}
-
-```
-
-
-```{r read current data, echo=FALSE, message=FALSE}
-# get directory of all files
-files <- fs::dir_ls(dir_files)
-
-# read in all data into one large table
-all_tables <- 
-  files %>%
-  map_dfr(read_csv, .id = "legal_type") %>% 
-  mutate(
-    # get legal_type from file name
-    legal_type = str_extract(legal_type, pattern = "(?<=result_).*") %>% str_remove("_all"), # my files don't have .csv, but if they do add (?=\\.csv) after asterisks
-    place = str_extract(location, pattern = "[^,]+") %>% str_to_title(),
-    place = case_when( # rename zip code into cities
-      place %in% "96813" ~ "Honolulu",
-      place %in% "96792" ~ "Rural Oahu",
-      TRUE ~ place
-    ),
-    state = case_when( # get State information
-      place %in% c("Honolulu", "Maui", "Rural Oahu", "Rural Hilo") ~ "Hawaii", 
-      place %in% c("Jacksonville", "Pensacola", "Tallahassee") ~ "Florida",
-      TRUE ~ NA_character_
-    ),
-    full_url = str_c(urldomain, ".", urlsuffix)
-  ) %>% 
-  distinct() %>% 
-  filter(!(qry %in% remove_queries))
-
-
-all_tables <- all_tables %>% 
-  filter(!str_detect(qry, "Hawaii")) %>% 
-  filter(!str_detect(qry, "Florida")) %>% 
-  filter(!str_detect(qry, "Honolulu")) %>% 
-  filter(!str_detect(qry, "Oahu")) %>% 
-  filter(!str_detect(qry, "Jacksonville")) %>% 
-  filter(!str_detect(qry, "Pensacola")) %>% 
-  filter(!str_detect(qry, "Tallahassee"))
-```
-
-```{r save data in files, eval=FALSE, echo=FALSE}
-# Write to separate tables to include thhe most common URLs and links
-
-# all_queries_jan_2020 %>%
-#   filter(!is.na(full_url)) %>%
-#   count(full_url, sort=TRUE) %>%
-#   write_csv("most_common_url_filtered.csv")
-# 
-# all_queries_jan_2020 %>%
-#   filter(!is.na(url)) %>%
-#   count(url, sort = TRUE) %>%
-#   write_csv("most_common_links_filtered.csv")
-# 
-# all_queries_jan_2020 %>%
-#   write_csv("all_queries_filtered.csv")
-# 
-# 
-# all_tables %>%
-#   filter(!is.na(full_url)) %>%
-#   count(full_url, sort=TRUE) %>%
-#   write_csv("most_common_url_complete.csv")
-# 
-# all_tables %>%
-#   filter(!is.na(url)) %>%
-#   count(url, sort = TRUE) %>%
-#   write_csv("most_common_links_complete.csv")
-# 
-# all_tables %>%
-#   write_csv("all_queries_complete.csv")
+second_audit_table <- 
+  str_glue("processed_data/", second_audit_date, "/all_queries_filtered.csv") %>%
+  read_csv(
+    col_types = cols(
+        .default = col_character(),
+        sub_rank = col_double(),
+        cmpt_rank = col_double(),
+        serp_rank = col_double(),
+        timestamp = col_character(),
+        text = col_character()
+    )
+  )
 ```
 
 ```{r analysis function, echo=FALSE, message=FALSE}
@@ -148,7 +63,7 @@ analysis <- function(loc, tp) {
   print(str_glue("Location: {loc}, Legal query: {tp}", loc = loc, tp = tp))
   
   sub_table <-
-    all_tables %>% 
+    second_audit_table %>% 
     filter(place %in% loc, legal_type == tp) %>% 
     select(place, legal_type, everything())
   
@@ -185,45 +100,14 @@ analysis <- function(loc, tp) {
     count(urldomain, sort = TRUE) 
 }
 
-
-# all_loc_type <- 
-#   files %>% 
-#   str_split_fixed("_", 3) %>% 
-#   as_tibble(.name_repair = "unique") %>% 
-#   rename(loc = `...1`, result = `...2`, tp = `...3`) %>% 
-#   mutate(
-#     loc = str_extract(loc, "(?<=../data/).*"),
-#     loc = case_when(
-#       loc %in% "96813" ~ "Honolulu",
-#       loc %in% "96793" ~ "Maui",
-#       loc %in% "96792" ~ "Rural Oahu",
-#       loc %in% "96778" ~ "Rual Hilo",
-#       TRUE ~ loc
-#     ),
-#     tp = str_extract(tp, ".*(?=\\.csv)")
-#   ) %>% 
-#   select(-result) 
-#   
-# Code to run all analysis; unfortunately formatting is less clear between cities
-# all_loc_type %>% 
-#   pmap(analysis)
-
 ``` 
-
 
 
 ## Comparison between different categories
 
-```{r}
-all_tables %>% 
-  filter(type == "ad")
-```
-
 ```{r create suffix table}
-
-#mutate(urlsuffix = fct_lump(urlsuffix, prop = 0.05)) %>% 
-suffix_nov_2020 <-
-  all_tables %>% 
+suffix_second_audit <-
+  second_audit_table %>% 
   filter(!is.na(urlsuffix)) %>% 
   mutate(
     urlsuffix = case_when(
@@ -240,11 +124,11 @@ suffix_nov_2020 <-
   mutate(
     legal_type = str_replace(legal_type, "_", " ") %>% str_to_title(),
     urlsuffix = fct_reorder(urlsuffix, n) %>% fct_rev(), 
-    time = "November"
+    time = second_date_label
   ) 
 
-suffix_jan_2020 <-
-  all_queries_jan_2020 %>% 
+suffix_first_audit <-
+  first_audit_table %>% 
   filter(!is.na(urlsuffix)) %>% 
   mutate(
     urlsuffix = case_when(
@@ -261,10 +145,10 @@ suffix_jan_2020 <-
   mutate(
     legal_type = str_replace(legal_type, "_", " ") %>% str_to_title(),
     urlsuffix = fct_reorder(urlsuffix, n) %>% fct_rev(), 
-    time = "January"
+    time = first_date_label
   )
 
-suffix <- rbind(suffix_jan_2020, suffix_nov_2020)
+suffix <- rbind(suffix_first_audit, suffix_second_audit)
 ```
 
 ```{r create suffix graphs}
@@ -313,8 +197,8 @@ suffix %>%
 
 
 ```{r create nonUS tables}
-nonUS_nov_2020 <-
-  all_tables %>% 
+nonUS_second_audit <-
+  second_audit_table %>% 
   mutate(non_us = str_extract(urlsuffix, "[^\\.]+$") %in% c("uk", "sg", "nz", "jp", "ca", "au")) %>% 
   count(state, legal_type, non_us) %>% 
   group_by(state, legal_type) %>% 
@@ -324,11 +208,11 @@ nonUS_nov_2020 <-
   mutate(
     legal_type = str_replace(legal_type, "_", "\n") %>% str_to_title(),
     legal_type = fct_reorder(legal_type, perc) %>% fct_rev(), 
-    time = "November"
+    time = second_date_label
   )
 
-nonUS_jan_2020 <-
-  all_tables %>% 
+nonUS_first_audit <-
+  first_audit_table %>% 
   mutate(non_us = str_extract(urlsuffix, "[^\\.]+$") %in% c("uk", "sg", "nz", "jp", "ca", "au")) %>% 
   count(state, legal_type, non_us) %>% 
   group_by(state, legal_type) %>% 
@@ -338,10 +222,10 @@ nonUS_jan_2020 <-
   mutate(
     legal_type = str_replace(legal_type, "_", "\n") %>% str_to_title(),
     legal_type = fct_reorder(legal_type, perc) %>% fct_rev(), 
-    time = "January"
+    time = first_date_label
   )
 
-nonUS <- rbind(nonUS_jan_2020, nonUS_nov_2020)
+nonUS <- rbind(nonUS_first_audit, nonUS_second_audit)
 ```
 
 
@@ -355,7 +239,7 @@ nonUS %>%
   labs(
     title = "Percent of non-US domain names", 
     subtitle = str_glue(
-      "Proportion of nonUS domains nearly the same in November as in January"
+      "Proportion of non-US domains nearly the same in November as in January"
     ),
     x = "Legal query type",
     y = "Percent of non-US domain names"

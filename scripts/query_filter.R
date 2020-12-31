@@ -1,5 +1,6 @@
 # Description
 # Deletes all queries with [state] and [city]
+# Used because the search audit for FL/HI audit in January replaced [state] and [city] incorrectly. 
 
 # Author: Julia Park
 # Version: 2020-11-23
