@@ -1,9 +1,11 @@
 ---
 title: 'Search Audit Report: Northern Florida and Hawaii Queries'
 output:
-  pdf_document: default
+  github_document:
+    toc: true
   html_document:
     df_print: paged
+  pdf_document: default
 date: "12/30/2020"
 ---
 
