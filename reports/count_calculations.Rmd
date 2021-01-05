@@ -159,12 +159,12 @@ legal_help_org_perc <-
   ungroup() %>% 
   filter(is_legal_org == TRUE)
 
-legal_help_org_perc_top <- 
-  legal_help_org_perc %>% 
-  filter(n > 10)
+# legal_help_org_perc_top <- 
+#   legal_help_org_perc %>% 
+#   filter(n > 10)
 
-top_legal_help_orgs <- 
-  legal_help_org_perc_top$full_url
+legal_help_orgs <- 
+  legal_help_org_perc$full_url
 
 legal_help_org_rankings <- 
   all_tables %>% 
@@ -177,7 +177,7 @@ legal_help_org_rankings <-
     )
   ) %>% 
   filter(is_legal_org == TRUE) %>% 
-  filter(full_url %in% top_legal_help_orgs) %>% 
+  filter(full_url %in% legal_help_orgs) %>% 
   group_by(legal_type, full_url) %>% 
   summarize(
     avg_serp_rank = mean(serp_rank)
@@ -185,13 +185,67 @@ legal_help_org_rankings <-
   arrange(legal_type, avg_serp_rank)
 
 legal_help_org <- 
-  legal_help_org_perc_top %>% 
+  legal_help_org_perc %>% 
   left_join(legal_help_org_rankings, by = c("legal_type", "full_url")) %>% 
   select(legal_type, full_url, n, perc, avg_serp_rank)
 
 legal_help_org %>% 
-  write_csv(str_glue("processed_data/", which_audit, "/top_legal_help_serp_complete.csv"))
+  write_csv(str_glue("processed_data/", which_audit, "/legal_help_serp_complete.csv"))
 
 ```
 
+
+```{r}
+legal_help_org_perc_state <- 
+  all_tables %>% 
+  mutate(
+    is_legal_org = case_when(
+      urlsuffix == "gov" ~ TRUE, 
+      urldomain %in% legal_help_org_hawaii ~ TRUE, 
+      urldomain %in% legal_help_org_florida ~ TRUE, 
+      TRUE ~ FALSE
+    )
+  ) %>% 
+  count(state, legal_type, full_url, is_legal_org) %>% 
+  group_by(state, legal_type) %>% 
+  mutate(perc = n / sum(n)) %>% 
+  arrange(legal_type, desc(perc)) %>% 
+  ungroup() %>% 
+  filter(is_legal_org == TRUE)
+
+# legal_help_org_perc_top <- 
+#   legal_help_org_perc %>% 
+#   filter(n > 10)
+
+legal_help_orgs <- 
+  legal_help_org_perc_state$full_url
+
+legal_help_org_rankings_state <- 
+  all_tables %>% 
+  mutate(
+    is_legal_org = case_when(
+      urlsuffix == "gov" ~ TRUE, 
+      urldomain %in% legal_help_org_hawaii ~ TRUE, 
+      urldomain %in% legal_help_org_florida ~ TRUE, 
+      TRUE ~ FALSE
+    )
+  ) %>% 
+  filter(is_legal_org == TRUE) %>% 
+  filter(full_url %in% legal_help_orgs) %>% 
+  group_by(state, legal_type, full_url) %>% 
+  summarize(
+    avg_serp_rank = mean(serp_rank)
+  ) %>% 
+  arrange(legal_type, avg_serp_rank)
+
+legal_help_org_state <- 
+  legal_help_org_perc_state %>% 
+  left_join(legal_help_org_rankings_state, by = c("state", "legal_type", "full_url")) %>% 
+  arrange(legal_type, full_url, perc) %>% 
+  select(state, legal_type, full_url, n, perc, avg_serp_rank)
+
+legal_help_org %>% 
+  write_csv(str_glue("processed_data/", which_audit, "/legal_help_serp_complete.csv"))
+
+```
 

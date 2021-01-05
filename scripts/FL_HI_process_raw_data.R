@@ -23,26 +23,26 @@ remove_queries <-
     "couple's counseling bay area", 
     "emergency phone number", 
     "peacekeeper solutions", 
-    "Places I can stay", 
+    "places I can stay", 
     "how to make good relationship with partner", 
     "relationship advice and coaching", 
     "local police department", 
     "defusing a situation", 
     "ptsd", 
-    "How to run away", 
-    "Spouse/husband said he would hurt me", 
+    "how to run away", 
+    "spouse/husband said he would hurt me", 
     "escaping relationship", 
     "911", 
     "police number", 
     "paranoia", 
-    "Places that are safe", 
-    "Best methods for good marriage life", 
+    "places that are safe", 
+    "best methods for good marriage life", 
     "where to go for advice with a troublesome relationship", 
-    "I need help", 
+    "i need help", 
     "support group locations", 
     "insecurity and anger", 
-    "How to contact the police", 
-    "Problems and solutions with wife",
+    "how to contact the police", 
+    "problems and solutions with wife",
     "bad roofing company",
     "free legal aid",
     "husband",
@@ -73,7 +73,8 @@ all_tables <-
       place %in% c("Jacksonville", "Pensacola", "Tallahassee") ~ "Florida",
       TRUE ~ NA_character_
     ),
-    full_url = str_c(urldomain, ".", urlsuffix)
+    full_url = str_c(urldomain, ".", urlsuffix), 
+    qry = str_to_lower(qry)
   ) %>% 
   distinct() %>% 
   filter(!(qry %in% remove_queries))
@@ -119,3 +120,15 @@ all_tables %>%
 all_tables %>% 
   write_csv(str_glue("processed_data/", which_audit, "/all_queries_filtered.csv"))
 
+
+# # to get filtered data for FL_HI_audit_Jan_2020 ONLY
+# "processed_data/FL_HI_audit_Jan_2020/all_queries_complete.csv" %>% 
+#   read_csv() %>% 
+#   filter(!str_detect(qry, "\\bcalifornia\\b")) %>% 
+#   filter(!str_detect(qry, "\\bcalifronia\\b")) %>% 
+#   filter(!str_detect(qry, "\\billinois\\b")) %>% 
+#   filter(!str_detect(qry, "\\bca\\b")) %>% 
+#   filter(!str_detect(qry, "\\bsan francisco\\b")) %>% 
+#   filter(!str_detect(qry, "\\bsf\\b")) %>% 
+#   filter(!str_detect(qry, "\\bbay area\\b")) %>% 
+#   write_csv("processed_data/FL_HI_audit_Jan_2020/all_queries_filtered.csv")

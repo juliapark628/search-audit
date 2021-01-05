@@ -88,17 +88,6 @@ analysis <- function(loc, tp) {
 }
 ``` 
 
-
-```{r, echo=FALSE, results="hide"}
-# check distinct queries 
-all_tables %>% 
-  distinct(qry, legal_type, place) %>% 
-  count(legal_type, place)
-
-all_tables %>% 
-  filter(type == "ad")
-```
-
 ## Comparison between different categories
 
 ```{r domain suffix count}

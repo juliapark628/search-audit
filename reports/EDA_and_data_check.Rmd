@@ -1,0 +1,213 @@
+---
+title: "EDA and data check"
+author: "Julia Park"
+date: "`r Sys.Date()`"
+output: 
+  github_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_knit$set(root.dir = "~/Github/Lab_Legal_Design/search_audit")
+```
+
+```{r message=FALSE, warning=FALSE}
+# Libraries
+library(tidyverse)
+library(tidytext)
+library(stringr)
+
+# Parameters
+remove_queries <- 
+  c(
+    "couple's counseling bay area", 
+    "emergency phone number", 
+    "peacekeeper solutions", 
+    "places I can stay", 
+    "how to make good relationship with partner", 
+    "relationship advice and coaching", 
+    "local police department", 
+    "defusing a situation", 
+    "ptsd", 
+    "how to run away", 
+    "spouse/husband said he would hurt me", 
+    "escaping relationship", 
+    "911", 
+    "police number", 
+    "paranoia", 
+    "places that are safe", 
+    "best methods for good marriage life", 
+    "where to go for advice with a troublesome relationship", 
+    "i need help", 
+    "support group locations", 
+    "insecurity and anger", 
+    "how to contact the police", 
+    "problems and solutions with wife",
+    "bad roofing company",
+    "free legal aid",
+    "husband",
+    "lawsuit help"
+  )
+# get the ultimate directory
+# has format "[states]_audit_[month]_[year]
+# must exist as a folder in processed_data/
+jan_audit <- "FL_HI_audit_Jan_2020"
+nov_audit <- "FL_HI_audit_Nov_2020"
+
+#===============================================================================
+
+# Code
+jan_df <- 
+  str_glue("processed_data/", jan_audit, "/all_queries_complete.csv") %>%
+  read_csv(
+    col_types = cols(
+        .default = col_character(),
+        sub_rank = col_double(),
+        cmpt_rank = col_double(),
+        serp_rank = col_double(),
+        timestamp = col_character(),
+        text = col_character()
+    )
+  )
+
+jan_filtered_df <- 
+  str_glue("processed_data/", jan_audit, "/all_queries_filtered.csv") %>%
+  read_csv(
+    col_types = cols(
+        .default = col_character(),
+        sub_rank = col_double(),
+        cmpt_rank = col_double(),
+        serp_rank = col_double(),
+        timestamp = col_character(),
+        text = col_character()
+    )
+  )
+
+nov_df <- 
+  str_glue("processed_data/", nov_audit, "/all_queries_complete.csv") %>%
+  read_csv(
+    col_types = cols(
+        .default = col_character(),
+        sub_rank = col_double(),
+        cmpt_rank = col_double(),
+        serp_rank = col_double(),
+        timestamp = col_character(),
+        text = col_character()
+    )
+  )
+
+nov_filtered_df <- 
+  str_glue("processed_data/", nov_audit, "/all_queries_filtered.csv") %>%
+  read_csv(
+    col_types = cols(
+        .default = col_character(),
+        sub_rank = col_double(),
+        cmpt_rank = col_double(),
+        serp_rank = col_double(),
+        timestamp = col_character(),
+        text = col_character()
+    )
+  )
+```
+
+This .rmd file is just used as "scratch paper" to check the data. 
+
+## January data
+
+The January audit was run by a previous research assistant and I only had access to an aggregated .csv file. I want to check its quality. 
+
+### Query number check
+
+```{r}
+# check distinct queries 
+jan_df %>% 
+  distinct(qry, legal_type, place) %>% 
+  count(legal_type, place) %>% 
+  arrange(legal_type)
+
+jan_df %>% 
+  mutate(
+    qry = str_to_lower(qry)
+  ) %>% 
+  filter(!(qry %in% remove_queries)) %>% 
+  distinct(qry, legal_type, place) %>% 
+  count(legal_type, place) %>% 
+  arrange(legal_type)
+
+jan_filtered_df %>% 
+  mutate(
+    qry = str_to_lower(qry)
+  ) %>% 
+  filter(!(qry %in% remove_queries)) %>% 
+  distinct(qry, legal_type, place) %>% 
+  count(legal_type, place) %>% 
+  arrange(legal_type)
+
+```
+
+The filtered query data has the expected number of queries compared to the complete one (only eviction and domestic violence had location-specific queries). An unequal number of queries were tested on the different cities for some reason, but as long as we use percentages and not counts, the data should still be good. 
+
+I also found that queries to remove were not totally removed from the original data because of case problems. I've updated the data processing script and also updated the .csv files (for both the old jan audit and my own nov audit) here. 
+
+```{r}
+jan_df %>% 
+  mutate(
+    qry = str_to_lower(qry)
+  ) %>% 
+  filter(!(qry %in% remove_queries)) %>% 
+  write_csv(str_glue("processed_data/", jan_audit, "/all_queries_complete.csv"))
+
+jan_filtered_df %>% 
+  mutate(
+    qry = str_to_lower(qry)
+  ) %>% 
+  filter(!(qry %in% remove_queries)) %>% 
+  write_csv(str_glue("processed_data/", jan_audit, "/all_queries_filtered.csv"))
+
+nov_df %>% 
+  mutate(
+    qry = str_to_lower(qry)
+  ) %>% 
+  filter(!(qry %in% remove_queries)) %>% 
+  write_csv(str_glue("processed_data/", nov_audit, "/all_queries_complete.csv"))
+
+nov_filtered_df %>% 
+  mutate(
+    qry = str_to_lower(qry)
+  ) %>% 
+  filter(!(qry %in% remove_queries)) %>% 
+  write_csv(str_glue("processed_data/", nov_audit, "/all_queries_filtered.csv"))
+```
+
+## November data
+
+### Query number check
+
+```{r}
+nov_df %>% 
+  distinct(qry, legal_type, place) %>% 
+  count(legal_type, place)
+
+nov_df %>% 
+  mutate(
+    qry = str_to_lower(qry)
+  ) %>% 
+  filter(!(qry %in% remove_queries)) %>% 
+  distinct(qry, legal_type, place) %>% 
+  count(legal_type, place) %>% 
+  arrange(legal_type)
+
+nov_filtered_df %>% 
+  mutate(
+    qry = str_to_lower(qry)
+  ) %>% 
+  filter(!(qry %in% remove_queries)) %>% 
+  distinct(qry, legal_type, place) %>% 
+  count(legal_type, place) %>% 
+  arrange(legal_type)
+
+```
+
+My own audit seems good in terms of query count; each legal type question and city was run with the same number of queries. 
