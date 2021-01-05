@@ -1,5 +1,5 @@
 ---
-title: 'Search Audit Report: Florida and Hawaii Queries (all queries)'
+title: 'Search Audit Report: Florida and Hawaii Queries'
 output:
   pdf_document: default
   html_document:
@@ -133,7 +133,7 @@ all_tables %>%
   labs(
     title = "Domain suffix percent breakdown",
     subtitle = str_glue(
-      "Domestic violence query has more .org links, all others have more .com links",
+      "Domestic violence in Hawaii has more .org links, all others have more .com links",
       "\nSpread between FL and HI are similar across all search query types"
     ),
     y = "Percent",
@@ -187,7 +187,7 @@ all_tables %>%
   facet_grid(cols = vars(state)) +
   labs(
     title = "Percent of ads on a given search page", 
-    subtitle = "Domestic violence has the largest proportion of ads, eviction queries have the least",
+    subtitle = "Debt collection has the largest proportion of ads, eviction queries have the least",
     x = "Legal query type",
     y = "Percent"
   ) 
@@ -240,8 +240,8 @@ all_tables %>%
   labs(
     title = "Percent of non-US domain names", 
     subtitle = str_glue(
-      "Domestic violence has >1% links leading to non-US sites in the first Google search result page",
-      "\n from Australia, UK, Canada, Singapore, and New Zealand"
+      "Domestic violence (and eviction from Hawaii) has >1% links leading to",
+      "\n  non-US sites from Australia, UK, Canada, Singapore, and New Zealand"
     ),
     x = "Legal query type",
     y = "Percent of non-US domain names"
