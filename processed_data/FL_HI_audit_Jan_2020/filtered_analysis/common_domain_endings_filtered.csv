@@ -1,0 +1,17 @@
+legal_type,urlsuffix,n,perc
+Debt Collection,com,3832,0.8306958595274225
+Debt Collection,gov,134,0.02904834164318231
+Debt Collection,org,601,0.13028398005636246
+Debt Collection,other,46,0.009971818773032734
+Domestic Violence,com,1034,0.4394390140246494
+Domestic Violence,gov,156,0.06629834254143646
+Domestic Violence,org,1020,0.43348916277093075
+Domestic Violence,other,143,0.06077348066298342
+Eviction,com,1071,0.7494751574527642
+Eviction,gov,20,0.013995801259622114
+Eviction,org,281,0.1966410076976907
+Eviction,other,57,0.03988803358992302
+Flood Contractor,com,3414,0.8444224585703686
+Flood Contractor,gov,188,0.046500123670541675
+Flood Contractor,org,396,0.09794706900816226
+Flood Contractor,other,45,0.011130348750927528

@@ -105,7 +105,7 @@ all_tables %>%
   theme_minimal() +
   labs(
     title = "Domain suffix count by legal type",
-    subtitle = "Domestic violence query has more .org links, all others have more .com links",
+    subtitle = "All queries have more .com links, but numbers are close for domestic violence",
     y = "Count",
     x = "Domain suffix",
     fill = "Legal type"
