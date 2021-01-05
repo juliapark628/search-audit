@@ -179,7 +179,22 @@ nov_filtered_df %>%
   ) %>% 
   filter(!(qry %in% remove_queries)) %>% 
   write_csv(str_glue("processed_data/", nov_audit, "/all_queries_filtered.csv"))
+
 ```
+
+```{r}
+# the below code was run for all 4 dfs. 
+nov_df %>% 
+  filter(!is.na(full_url)) %>% 
+  count(full_url, sort = TRUE) %>% 
+  write_csv(str_glue("processed_data/", nov_audit, "/most_common_urls_complete.csv"))
+
+nov_df %>% 
+  filter(!is.na(url)) %>% 
+  count(url, sort = TRUE) %>% 
+  write_csv(str_glue("processed_data/", nov_audit, "/most_common_links_complete.csv"))
+```
+
 
 ## November data
 
