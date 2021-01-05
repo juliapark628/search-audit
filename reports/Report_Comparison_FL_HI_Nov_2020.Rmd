@@ -4,7 +4,7 @@ output:
   pdf_document: default
   html_document:
     df_print: paged
-date: "12/30/2020"
+date: "`r Sys.Date()`"
 ---
 
 ```{r setup, include=FALSE}
@@ -166,7 +166,7 @@ suffix %>%
   labs(
     title = "Florida: Domain suffix percent breakdown",
     subtitle = str_glue(
-      "Share of .org links decreases for all legal types, but .gov increases",
+      "Share of .org links decreases for all legal types except eviction, but .gov increases",
       "\n.com links increase for debt collection and domestic violence"
     ),
     y = "Percent",

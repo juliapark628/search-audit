@@ -1,12 +1,12 @@
 ---
-title: 'Search Audit Report: Northern Florida and Hawaii Queries'
+title: 'Search Audit Report: Florida and Hawaii Queries (all queries)'
 output:
-  github_document:
-    toc: true
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
-date: "12/30/2020"
+  github_document:
+    toc: true
+date: "`r Sys.Date()`"
 ---
 
 ```{r setup, include=FALSE}
@@ -26,7 +26,7 @@ library(stringr)
 which_audit <- "FL_HI_audit_Jan_2020"
 
 all_tables <- 
-  str_glue("processed_data/", which_audit, "/all_queries_complete.csv") %>%
+  str_glue("processed_data/", which_audit, "/all_queries_filtered.csv") %>%
   read_csv(
     col_types = cols(
         .default = col_character(),
